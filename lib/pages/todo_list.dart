@@ -15,6 +15,8 @@ class _TodoListPageState extends State<TodoListPage> {
   final TextEditingController todoController = new TextEditingController();
 
   List<Todo> todos = [];
+  Todo? deletedTodo;
+  int? deletedTodoPos;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,7 @@ class _TodoListPageState extends State<TodoListPage> {
                         child: ElevatedButton(
                           onPressed: (){
                             setState(() {
-                              Todo newTodo = new Todo(
+                              Todo newTodo = Todo(
                                   title: todoController.text,
                                   dateTime: DateTime.now()
                                   );
@@ -54,8 +56,8 @@ class _TodoListPageState extends State<TodoListPage> {
                             todoController.clear();
                           },
                           style: ElevatedButton.styleFrom(
-                            primary : Color(0xff00d7f3),
-                            padding: EdgeInsets.all(17)
+                            primary :const Color(0xff00d7f3),
+                            padding:const EdgeInsets.all(17)
                           ),
                           child: const Icon(
                             Icons.add,
@@ -73,7 +75,8 @@ class _TodoListPageState extends State<TodoListPage> {
                     children:[
                       for (var todo in todos)
                         TodoListItem(
-                          todo:todo
+                          todo:todo,
+                          onDelete: onDelete
                         ),
                     ],
                   ),
@@ -87,7 +90,11 @@ class _TodoListPageState extends State<TodoListPage> {
                     const SizedBox(width: 8,),
                     ElevatedButton(
                       child: Text('Limpar tudo'),
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          todos = [];
+                        });
+                      },
                       style: ElevatedButton.styleFrom(
                             primary : Color(0xff00d7f3),
                             padding: EdgeInsets.all(17)
@@ -102,5 +109,37 @@ class _TodoListPageState extends State<TodoListPage> {
         ),
       ),
     );
+  }
+
+  void onDelete(Todo todo){
+    
+    deletedTodo = todo;
+    deletedTodoPos = todos.indexOf(todo);
+
+    setState(() {
+      todos.remove(todo);
+    });
+
+    ScaffoldMessenger.of(context).clearSnackBars();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+          content: Text(
+            'Tarefa ${todo.title} foi removida com sucesso.',
+            style: TextStyle(
+              color: Color(0xff060708)
+            ),),
+            backgroundColor: Colors.white70,
+            action: SnackBarAction(
+              label: 'Desfazer',
+              textColor: const Color(0xff00d7f3),
+              onPressed: () {
+                setState(() {
+                  todos.insert(deletedTodoPos!, deletedTodo!);
+                });
+              }
+              ),
+            duration: const Duration(seconds: 5),
+        )
+      );
   }
 }
