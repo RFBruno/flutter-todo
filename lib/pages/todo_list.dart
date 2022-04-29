@@ -19,6 +19,7 @@ class _TodoListPageState extends State<TodoListPage> {
   List<Todo> todos = [];
   Todo? deletedTodo;
   int? deletedTodoPos;
+  String? eText;
 
   @override
   void initState(){
@@ -46,10 +47,20 @@ class _TodoListPageState extends State<TodoListPage> {
                       flex: 4,
                       child: TextField(
                         controller: todoController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             border: const OutlineInputBorder(),
                             labelText: 'Adicione uma tarefa',
                             hintText: 'Ex. Estudar Flutter',
+                            errorText: eText,
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Color(0xff00d7f3),
+                                width: 2
+                              ),
+                            ),
+                            labelStyle: const TextStyle(
+                              color: Color(0xff00d7f3)
+                            ),
                           ),
                         ),
                         
@@ -58,11 +69,21 @@ class _TodoListPageState extends State<TodoListPage> {
                       Expanded(
                         child: ElevatedButton(
                           onPressed: (){
+                            String text = todoController.text;
+                            Todo newTodo = Todo(
+                                title: text,
+                                dateTime: DateTime.now()
+                                );
+                            
+                            if(text.isEmpty){
+                              setState(() {
+                                eText = 'O titulo não pode ser vazio';
+                              });
+                              return;
+                            }
+
                             setState(() {
-                              Todo newTodo = Todo(
-                                  title: todoController.text,
-                                  dateTime: DateTime.now()
-                                  );
+                              eText = null;
                               todos.add(newTodo);
                             });
                             todoController.clear();
